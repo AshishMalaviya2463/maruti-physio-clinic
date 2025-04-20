@@ -1,15 +1,20 @@
-import { Typography } from "@mui/material";
+import Header from "@/components/Header";
+import UserList from "@/components/UserList";
+import { Container, Typography } from "@mui/material";
 
 export default function Home() {
   return (
     <>
-      <Typography
+      <Header />
+      <Container
         sx={{
-          color: "red",
+          mx: "auto !important",
+          height: "calc(100svh - 55px)",
+          py: "15px !important",
         }}
       >
-        Hello World
-      </Typography>
+        <UserList />
+      </Container>
     </>
   );
 }
