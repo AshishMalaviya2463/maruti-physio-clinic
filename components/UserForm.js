@@ -25,7 +25,13 @@ import PrimaryButton from "./buttons/PrimaryButton";
 import SecondaryButton from "./buttons/SecondaryButton";
 import axios from "axios";
 
-const UserForm = ({ open, handleClose }) => {
+const UserForm = ({
+  open,
+  handleClose,
+  isEditOpen,
+  editData,
+  fetchData = () => {},
+}) => {
   const [patientData, setPatientData] = useState({
     patient_name: "",
     age: "",
@@ -42,6 +48,25 @@ const UserForm = ({ open, handleClose }) => {
   });
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    if (isEditOpen) {
+      setPatientData({
+        patient_name: editData.patient_name,
+        age: editData.age,
+        gender: editData.gender,
+        mobile_no: editData.mobile_no,
+        address: editData.address,
+        history: editData.history,
+        on_examination: editData.on_examination,
+        mouth_opening_measurement: editData.mouth_opening_measurement,
+        treatment_given: editData.treatment_given,
+        provisional_diagnosis: editData.provisional_diagnosis,
+        chief_complains: editData.chief_complains,
+        starting_date: dayjs(editData.starting_date || new Date()),
+      });
+    }
+  }, [isEditOpen, editData]);
 
   const clearState = () => {
     setPatientData({
@@ -113,26 +138,41 @@ const UserForm = ({ open, handleClose }) => {
     const isValid = handleValidateData();
     if (isValid) {
       try {
-        const response = await axios.post("/api/patients", {
-          ...patientData,
-          age: Number(patientData.age),
-          mobile_no: Number(patientData.mobile_no),
-        });
-        console.log("response", response.data);
-        setSuccessMessage("Patient record created successfully.");
+        const response = isEditOpen
+          ? await axios.put("/api/patients", {
+              ...editData,
+              ...patientData,
+              age: Number(patientData.age),
+              mobile_no: Number(patientData.mobile_no),
+              id: editData.id,
+            })
+          : await axios.post("/api/patients", {
+              ...editData,
+              ...patientData,
+              age: Number(patientData.age),
+              mobile_no: Number(patientData.mobile_no),
+              payment_data: [],
+            });
+        setSuccessMessage(
+          isEditOpen
+            ? "Patient data updated successfully."
+            : "Patient record created successfully."
+        );
+        fetchData();
         clearState();
         handleClose();
-      } catch (error) {
-        console.log("error", error);
-      }
+      } catch (error) {}
     }
   };
 
   return (
     <>
       <CustomModal
-        open={open}
-        handleClose={handleClose}
+        open={open || isEditOpen}
+        handleClose={() => {
+          handleClose();
+          clearState();
+        }}
         modalStyle={{
           p: "0px",
           maxWidth: "75%",
@@ -485,7 +525,9 @@ const UserForm = ({ open, handleClose }) => {
           gap={"12px"}
           p={"16px 22px"}
         >
-          <PrimaryButton onClick={handleSave}>Save</PrimaryButton>
+          <PrimaryButton onClick={handleSave}>
+            {isEditOpen ? "Update" : "Save"}
+          </PrimaryButton>
           <SecondaryButton
             onClick={() => {
               clearState();
@@ -501,13 +543,19 @@ const UserForm = ({ open, handleClose }) => {
         anchorOrigin={{ vertical: "top", horizontal: "right" }}
         open={errorMessage.length > 0 || successMessage.length > 0}
         autoHideDuration={4000}
-        onClose={() => setErrorMessage("")}
+        onClose={() => {
+          setErrorMessage("");
+          setSuccessMessage("");
+        }}
         slots={{
           transition: Slide,
         }}
       >
         <Alert
-          onClose={() => setErrorMessage("")}
+          onClose={() => {
+            setErrorMessage("");
+            setSuccessMessage("");
+          }}
           severity={errorMessage.length > 0 ? "warning" : "success"}
           variant="filled"
           sx={{ width: "100%" }}

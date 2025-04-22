@@ -10,6 +10,7 @@ export default function Home() {
         sx={{
           mx: "auto !important",
           height: "calc(100svh - 55px)",
+          maxWidth: "1400px !important",
           py: "15px !important",
         }}
       >

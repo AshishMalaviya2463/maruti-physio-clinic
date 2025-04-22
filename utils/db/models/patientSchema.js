@@ -50,6 +50,20 @@ const patientSchema = new mongoose.Schema(
       type: Date,
       required: true,
     },
+    payment_data: {
+      type: [
+        {
+          payment_date: Date,
+          payment_amount: Number,
+          payment_type: {
+            type: String,
+            enum: ["cash", "online"],
+          },
+        },
+      ],
+      required: true,
+      default: [],
+    },
   },
   { timestamps: true }
 );

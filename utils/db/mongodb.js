@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const MONGO_URI = "mongodb://localhost:27017/maruti-physio-clinic";
+const MONGO_URI = "mongodb://localhost:27017/maruti-physiotherapy-clinic";
 
 export async function connectToDB() {
   if (mongoose.connection.readyState === 0) {

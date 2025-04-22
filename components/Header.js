@@ -9,6 +9,7 @@ const Header = () => {
           sx={{
             height: "100%",
             mx: "auto !important",
+            maxWidth: "1400px !important",
           }}
         >
           <Stack
